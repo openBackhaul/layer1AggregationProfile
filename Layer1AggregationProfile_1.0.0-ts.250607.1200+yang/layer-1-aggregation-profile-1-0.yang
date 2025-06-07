@@ -1,0 +1,298 @@
+module layer-1-aggregation-profile-1-0 {
+  yang-version 1.1;
+  namespace "urn:onf:yang:layer-1-aggregation-profile-1-0";
+  prefix layer-1-aggregation-profile;
+
+  import core-model-1-4 {
+    prefix core-model;
+  }
+
+  organization
+    "openBackhaul.com proposal to LinuxFoundation (LF)";
+  contact
+    "WG Web : https://github.com/openBackhaul/Overview
+     WG List: Layer1AggregationProfile@openBackhaul.com
+     Editor : Thorsten Heinze
+     Email  : Thorsten.Heinze@openBackhaul.com";
+  description
+    "This model is for managing layer 1 aggregation groups.
+
+     Copyright 2025 openBackhaul.com
+
+     Licensed under the Apache License, Version 2.0 (the 'License');
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+     http://www.apache.org/licenses/LICENSE-2.0
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an 'AS IS' BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.";
+
+  revision 2025-06-07 {
+    description
+      "Model for the Transport SDN at Telefonica Germany.
+       Please view https://github.com/openBackhaul/layer1AggregationProfile/issues for changes.";
+    reference
+      "https://github.com/openBackhaul/layer1AggregationProfile: Model definition
+       https://github.com/openBackhaul/onfCoreIm/tree/tsi: ONF TR-512 Core IM incl. Profile and enhanced Equipment definition";
+  }
+
+  identity PROFILE_NAME_TYPE_LAYER_1_AGGREGATION_PROFILE {
+    base core-model:PROFILE_NAME_TYPE;
+    description
+      "none";
+  }
+
+  /****************************************
+   * grouping statements for object classes
+   **************************************/ 
+
+  grouping layer-1-aggregation-profile-spec {
+    description
+      "none";
+    container layer-1-aggregation-profile-pac {
+      config false;
+      description
+        "none";
+      uses layer-1-aggregation-profile-pac;
+    }
+  }
+
+  grouping layer-1-aggregation-profile-pac {
+    description
+      "none";
+    container layer-1-aggregation-profile-configuration {
+      config false;
+      description
+        "none";
+      uses layer-1-aggregation-profile-configuration;
+    }
+    container layer-1-aggregation-profile-status {
+      config false;
+      description
+        "none";
+      uses layer-1-aggregation-profile-status;
+    }
+  }
+
+  grouping layer-1-aggregation-profile-configuration {
+    description
+      "none";
+    leaf aggregation-group-is-on {
+      type boolean;
+      default "true";
+      config false;
+      description
+        "If true, the layer 1 aggregation group is configured to be activated, so it is forwarding traffic to the serving layers.";
+    }
+    leaf client-ltp {
+      type leafref {
+        path "/core-model:control-construct/core-model:logical-termination-point/core-model:uuid";
+        require-instance false;
+      }
+      config false;
+      mandatory true;
+      description
+        "UUID of the LTP with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_ETHERNET_CONTAINER_LAYER that is configured to be transported by a group of LTPs with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_HYBRID_MW_STRUCTURE_LAYER or LAYER_PROTOCOL_NAME_TYPE_PURE_ETHERNET_STRUCTURE_LAYER.";
+    }
+    leaf-list server-ltp-list {
+      type leafref {
+        path "/core-model:control-construct/core-model:logical-termination-point/core-model:uuid";
+        require-instance false;
+      }
+      config false;
+      description
+        "List of UUIDs of a group of LTPs with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_HYBRID_MW_STRUCTURE_LAYER or LAYER_PROTOCOL_NAME_TYPE_PURE_ETHERNET_STRUCTURE_LAYER that are configured to transport an LTP with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_ETHERNET_CONTAINER_LAYER.";
+    }
+  }
+
+  grouping layer-1-aggregation-profile-status {
+    description
+      "none";
+    leaf aggregation-group-is-up {
+      type boolean;
+      default "false";
+      config false;
+      description
+        "If true, the layer 1 aggregation group is currently activated and forwarding traffic to the serving layers.";
+    }
+    leaf client-ltp {
+      type leafref {
+        path "/core-model:control-construct/core-model:logical-termination-point/core-model:uuid";
+        require-instance false;
+      }
+      config false;
+      mandatory true;
+      description
+        "UUID of the LTP with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_ETHERNET_CONTAINER_LAYER that is transported by a group of LTPs with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_HYBRID_MW_STRUCTURE_LAYER or LAYER_PROTOCOL_NAME_TYPE_PURE_ETHERNET_STRUCTURE_LAYER.";
+    }
+    leaf-list server-ltp-list {
+      type leafref {
+        path "/core-model:control-construct/core-model:logical-termination-point/core-model:uuid";
+        require-instance false;
+      }
+      config false;
+      description
+        "List of UUIDs of a group of LTPs with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_HYBRID_MW_STRUCTURE_LAYER or LAYER_PROTOCOL_NAME_TYPE_PURE_ETHERNET_STRUCTURE_LAYER that are transporting an LTP with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_ETHERNET_CONTAINER_LAYER.";
+    }
+  }
+
+  /****************************************
+   * package interfaces
+   **************************************/ 
+
+  rpc create-layer-1-aggregation-profile {
+    description
+      "Creates a Layer1Aggregation with the group of UUIDs of LTPs of layer protocol name HybridMwStructure or PureEthernetStructure and returns the UUID of the resulting Layer1Aggregation Profile. Existing configurations made obsolete by this configuration change are purged in the background. The following error-messages are to be send, if the operation would fail: #[onf:Referenced object is invalid.]#, if any of the referenced objects does not exist or is of the wrong type. #[onf:Referenced object is not capable.]#, if the interface represented by any of the referenced HybridMwStructure or PureEthernetStructure is not supporting being added to the aggregation group. #[onf:Wished change contradicts existing configuration.]#, if the interface represented by any of the referenced HybridMwStructure or PureEthernetStructure is already in use in another aggregation group. #[onf:Wished changes are not consistent. ]#, if e.g. the group of referenced HybridMwStructure or PureEthernetStructure is not complete for creating the aggregation group. #[onf:Resources not available.]#, if the maximum number of aggregation groups has already been configured. #[onf:Configuration value out of range of hardware capabilities.]#, if the device is not supporting switching aggregation groups on/off during instantiation.";
+    input {
+      leaf-list serving-structure-list {
+        type leafref {
+          path "/core-model:control-construct/core-model:logical-termination-point/core-model:uuid";
+          require-instance false;
+        }
+        description
+          "List of UUIDs of LogicalTerminationPoints with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_HYBRID_MW_STRUCTURE_LAYER or LAYER_PROTOCOL_NAME_TYPE_PURE_ETHERNET_STRUCTURE_LAYER.";
+      }
+      leaf aggregation-group-is-on {
+        type boolean;
+        mandatory true;
+        description
+          "If true, the layer 1 aggregation group will be configured to be activated, so it is forwarding traffic to the serving layers.";
+      }
+    }
+    output {
+      leaf resulting-layer-1-aggregation-profile {
+        type leafref {
+          path "/core-model:control-construct/core-model:profile-collection/core-model:profile/core-model:uuid";
+          require-instance false;
+        }
+        mandatory true;
+        description
+          "UUID of the resulting Profile with profileName==PROFILE_NAME_TYPE_LAYER_1_AGGREGATION_PROFILE that has just been created.";
+      }
+    }
+  }
+
+  rpc update-layer-1-aggregation-profile {
+    description
+      "Updates the configuration of the referenced layer1AggregationProfile with the group of UUIDs of LTPs of layer protocol name HybridMwStructure or PureEthernetStructure and the status of the on/off switch and returns the UUID of the resulting Layer1Aggregation Profile. Existing configurations made obsolete by this configuration change are purged in the background. The following error-messages are to be send, if the operation would fail: #[onf:Referenced object is invalid.]#, if any of the referenced objects does not exist or is of the wrong type. #[onf:Referenced object is not capable.]#, if the interface represented by any of the referenced HybridMwStructure or PureEthernetStructure is not supporting being added to the aggregation group. #[onf:Wished change contradicts existing configuration.]#, if the interface represented by any of the referenced HybridMwStructure or PureEthernetStructure is already in use in another aggregation group. #[onf:Wished changes are not consistent. ]#, if e.g. the group of referenced HybridMwStructure or PureEthernetStructure is not complete for creating the aggregation group. #[onf:Configuration value out of range of hardware capabilities.]#, if the device is not supporting switching aggregation groups on/off.";
+    input {
+      leaf layer-1-aggregation-profile {
+        type leafref {
+          path "/core-model:control-construct/core-model:profile-collection/core-model:profile/core-model:uuid";
+          require-instance false;
+        }
+        mandatory true;
+        description
+          "UUID of an existing Profile with profileName==PROFILE_NAME_TYPE_LAYER_1_AGGREGATION_PROFILE that shall be re-configured.";
+      }
+      leaf-list serving-structure-list {
+        type leafref {
+          path "/core-model:control-construct/core-model:logical-termination-point/core-model:uuid";
+          require-instance false;
+        }
+        min-elements 1;
+        description
+          "List of UUIDs of LogicalTerminationPoints with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_HYBRID_MW_STRUCTURE_LAYER or LAYER_PROTOCOL_NAME_TYPE_PURE_ETHERNET_STRUCTURE_LAYER.";
+      }
+      leaf aggregation-group-is-on {
+        type boolean;
+        mandatory true;
+        description
+          "If true, the layer 1 aggregation group will be configured to be activated, so it is forwarding traffic to the serving layers.";
+      }
+    }
+    output {
+      leaf resulting-layer-1-aggregation-profile {
+        type leafref {
+          path "/core-model:control-construct/core-model:profile-collection/core-model:profile/core-model:uuid";
+          require-instance false;
+        }
+        mandatory true;
+        description
+          "UUID of the Profile with profileName==PROFILE_NAME_TYPE_LAYER_1_AGGREGATION_PROFILE that resulted from the update.";
+      }
+    }
+  }
+
+  rpc delete-layer-1-aggregation-profile {
+    description
+      "Deletes the Layer1Aggregation that is identified in the input and creates all logical objects that are required for representing the initial state of the device again. The following error-message is to be send, if the operation would fail: #[onf:Layer1AggregationProfile cannot be deleted.]#, if the referenced object cannot be deleted.";
+    input {
+      leaf obsolete-layer-1-aggregation-profile {
+        type leafref {
+          path "/core-model:control-construct/core-model:profile-collection/core-model:profile/core-model:uuid";
+          require-instance false;
+        }
+        mandatory true;
+        description
+          "UUID of the instance of Layer1AggregationProfile (ProfileNameType==PROFILE_NAME_TYPE_LAYER_1_AGGREGATION_PROFILE) that shall be deleted.";
+      }
+    }
+  }
+
+  rpc provide-capabilities-of-layer-1-aggregation {
+    description
+      "Defines the general capabilities of the layer 1 aggregation implementation on the device.";
+    output {
+      leaf minimum-number-of-servers {
+        type uint64;
+        default "0";
+        description
+          "Defines the minimum number of LTPs that need to be referenced in the _servingStructureList input parameter of the createLayer1AggregationProfile operation.";
+      }
+      leaf deactivating-an-aggration-group-is-avail {
+        type boolean;
+        default "false";
+        description
+          "If true, the device supports temporary disable/enable of a layer 1 aggregation group.";
+      }
+      leaf maximum-number-of-aggregation-groups {
+        type uint64;
+        default "0";
+        description
+          "Maximum number of layer 1 aggregation groups that can be configured on the device.";
+      }
+    }
+  }
+
+  rpc provide-capabilities-of-layer-1-aggregation-group {
+    description
+      "Defines the capabilities that are specific to the referenced layer 1 aggregation group. The following error-message is to be send, if the operation would fail: #[onf:Referenced object is invalid.]#, if the referenced objects does not exist or is of the wrong type.";
+    input {
+      leaf layer-1-aggregation-profile {
+        type leafref {
+          path "/core-model:control-construct/core-model:profile-collection/core-model:profile/core-model:uuid";
+          require-instance false;
+        }
+        mandatory true;
+        description
+          "UUID of the instance of Layer1AggregationProfile (ProfileNameType==PROFILE_NAME_TYPE_LAYER_1_AGGREGATION_PROFILE) for which the capability information shall be provided.";
+      }
+    }
+    output {
+      leaf maximum-number-of-servers {
+        type uint64;
+        default "0";
+        description
+          "Defines the maximum number of LTPs that might be referenced in the _servingStructureList input parameter of the updateLayer1AggregationProfile operation, while updating a referenced layer 1 aggregation group.";
+      }
+      leaf-list list-of-structure-ltps-that-might-be-added {
+        type leafref {
+          path "/core-model:control-construct/core-model:logical-termination-point/core-model:uuid";
+          require-instance false;
+        }
+        description
+          "List of UUIDs of LTPs with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_HYBRID_MW_STRUCTURE_LAYER or LAYER_PROTOCOL_NAME_TYPE_PURE_ETHERNET_STRUCTURE_LAYER that might be added to the group of LTPs that are already transporting the LTP with LayerProtocol::layerProtocolName==LAYER_PROTOCOL_NAME_TYPE_ETHERNET_CONTAINER_LAYER in the referenced layer 1 aggregation group.";
+      }
+    }
+  }
+
+  augment "/core-model:control-construct/core-model:profile-collection/core-model:profile" {
+    when "derived-from-or-self(./core-model:profile-name, 'layer-1-aggregation-profile:PROFILE_NAME_TYPE_LAYER_1_AGGREGATION_PROFILE')";
+    description
+      "none";
+    uses layer-1-aggregation-profile-spec;
+  }
+}
