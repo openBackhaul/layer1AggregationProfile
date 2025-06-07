@@ -17,13 +17,13 @@ Profile for managing the physical link aggregation
 - When statement in Augmentation statement demands for Profile::profileName==PROFILE_NAME_TYPE_LAYER_1_AGGREGATION_PROFILE
 
 ### YANG File
-- to be provided
+- [Layer1AggregationProfile_1.0.0-ts.250607.1200+yang](./Layer1AggregationProfile_1.0.0-ts.250607.1200+yang/layer-1-aggregation-profile-1-0.yang)
 
 ### Schema
 - to be provided
 
 ### Interface Simulator
-- to be provided
+- [Layer1AggregationProfile_1.0.0-ts.250607.1200+simu](./Layer1AggregationProfile_1.0.0-ts.250607.1200+simu/)
 
 ### Interface Validator
 - to be provided
